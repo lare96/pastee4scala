@@ -1,8 +1,10 @@
 package org.lare96.pastee
 
-import java.net.URL
+import java.net.{URL, URLConnection}
 
-import scala.xml.{NodeSeq, XML}
+import org.lare96.pastee.util.HttpRequestData
+
+import scala.xml.XML
 
 /** A case class representing an upload request for a Paste.ee paste. After this `PasteeUploadRequest` class is instantiated it
   * can be manipulated to perform upload operations.
@@ -33,50 +35,88 @@ final case class PasteeUploadRequest(key: String = "public", description: String
     */
   private def send = {
     val connection = new URL((if (useHttps) "https" else "http") + "://paste.ee/api").openConnection
+
     connection.setDoOutput(true)
+    connection.setDoInput(true)
+
+    encodeHttpRequest(connection)
+
+    decodeXmlResponse(connection)
+  }
+
+  /** Encodes the `HTTP` request and writes it to the `OutputStream` from the `URLConnection`.
+    *
+    * @param connection The `URLConnection` to retrieve the `OutputStream` from.
+    */
+  private def encodeHttpRequest(connection: URLConnection) = {
+    if (expireTime != 0 && expireViews != 0) {
+      throw new IllegalStateException("cannot have both an expire time and view value.")
+    }
+
+    val requestData = new HttpRequestData
+
+    requestData.put("key", key)
+    requestData.put("description", description)
+    requestData.put("paste", paste)
+
+    if (!language.isEmpty) {
+      requestData.put("language", language)
+    }
+
+    if (encrypted) {
+      requestData.put("encrypted", "1")
+    }
+
+    if (expireTime != 0) {
+      requestData.put("expire", expireTime.toString)
+    } else if (expireViews != 0) {
+      requestData.put("expire", s"views;$expireViews")
+    }
+
+    requestData.put("format", "xml")
 
     val outputStream = connection.getOutputStream
     try {
-      val requestData = new PasteeUploadData(this)
-      requestData.putBytes(outputStream)
+      requestData.writeData(outputStream)
     } finally {
       outputStream.close()
-    }
-
-    val inputStream = connection.getInputStream
-    try {
-      decodeXml(XML.load(inputStream))
-    } finally {
-      inputStream.close()
     }
   }
 
   /**
-    * Decodes an `XML` tree in order to construct a `PasteeUploadResponse` instance.
+    * Decodes the `XML` response to the `HTTP` request.
     *
-    * @param xml The `XML` tree to decode.
+    * @param connection The `URLConnection` to retrieve the `InputStream` from.
     * @return The `PasteeUploadResponse` to the upload request.
     */
-  private def decodeXml(xml: NodeSeq): PasteeUploadResponse = {
-    val responseStatus = (xml \ "status").text
+  private def decodeXmlResponse(connection: URLConnection): PasteeUploadResponse = {
+    val inputStream = connection.getInputStream
+    try {
+      val xml = XML.load(inputStream)
+      val responseStatus = (xml \ "status").text
 
-    if (responseStatus == "error") {
-      val errorCode = (xml \ "errorcode").text
-      val errorMsg = (xml \ "error").text
+      if (responseStatus == "error") {
 
-      return new PasteeErrorUploadResponse(Integer.parseInt(errorCode), errorMsg)
+        val errorCode = (xml \ "errorcode").text
+        val errorMsg = (xml \ "error").text
 
-    } else if (responseStatus == "success") {
-      val id = (xml \ "paste" \ "id").text
-      val link = (xml \ "paste" \ "link").text
-      val raw = (xml \ "paste" \ "raw").text
-      val download = (xml \ "paste" \ "download").text
-      val min = (xml \ "paste" \ "min").text
+        return new PasteeErrorUploadResponse(Integer.parseInt(errorCode), errorMsg)
 
-      return new PasteeSuccessUploadResponse(id, link, raw, download, min)
+      } else if (responseStatus == "success") {
 
+        val id = (xml \ "paste" \ "id").text
+        val link = (xml \ "paste" \ "link").text
+        val raw = (xml \ "paste" \ "raw").text
+        val download = (xml \ "paste" \ "download").text
+        val min = (xml \ "paste" \ "min").text
+
+        return new PasteeSuccessUploadResponse(id, link, raw, download, min)
+
+      }
+      throw new IllegalStateException(s"invalid response status: $responseStatus")
+    } finally {
+      inputStream.close()
     }
-    throw new IllegalStateException(s"invalid response status: $responseStatus")
   }
 }
 
