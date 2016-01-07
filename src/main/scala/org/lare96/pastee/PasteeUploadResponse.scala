@@ -5,7 +5,7 @@ package org.lare96.pastee
   * @param _successful If the upload request was successful.
   * @author lare96 <http://github.org/lare96>
   */
-class PasteeUploadResponse(_successful: Boolean) {
+sealed abstract class PasteeUploadResponse(_successful: Boolean) {
 
   /** @return `true` if the upload request was successful, `false` otherwise. */
   def successful = _successful
