@@ -21,6 +21,27 @@ if (response.successful) {
 }
 ```
 
+<br>
+
+Or alternatively, as a more idiomatic solution you can use pattern matching
+
+```scala
+val response = new PasteeUploadRequest(description = "A simple description.",
+    paste = "A simple paste.",
+    expireTime = 1).sendAndWait
+
+response match {
+  case success: PasteeSuccessUploadResponse => println(success.link)
+   
+  case error: PasteeErrorUploadResponse => 
+    println(s"Paste upload unsuccessful [opcode=${error.id}, msg=${error.msg}]")
+      
+  case _ => throw new IllegalStateException("unexpected")
+}
+```
+
+<br>
+
 Downloading a Paste
 -------
 Downloading a paste is almost identical to uploading, but a plain String containing the paste is returned instead. If there are any problems an ```Exception``` implementation will be thrown. An example is displayed below
