@@ -1,7 +1,8 @@
+package org.lare96.pastee
+
 import java.io.FileNotFoundException
 
 import org.junit.Test
-import org.lare96.pastee.PasteeDownloadRequest
 
 /** A simple JUnit test that ensures Paste.ee downloading functions are working correctly.
   *

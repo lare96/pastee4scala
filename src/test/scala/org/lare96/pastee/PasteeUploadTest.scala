@@ -1,5 +1,6 @@
+package org.lare96.pastee
+
 import org.junit.Test
-import org.lare96.pastee.PasteeUploadRequest
 
 /** A simple JUnit test that ensures various Paste.ee downloading functions are working correctly.
   *
