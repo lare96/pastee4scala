@@ -1,4 +1,5 @@
 /project/target
 /.idea
 target/
+/pastee4scala.iml
 out/
