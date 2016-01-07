@@ -6,7 +6,7 @@ Pastee4scala is a Paste.ee API wrapper written in Scala. It supports both upload
 
 Uploading a Paste
 -------
-Uploading a paste is simple. Construct a new ```PasteeUploadRequest``` class with your desired parameters and then invoke `sendAndWait` to execute an upload attempt. ```sendAndWait``` will return a ```PasteeUploadResult``` instance containing the result of the upload request. An example is displayed below
+Uploading a paste is simple. Construct a new ```PasteeUploadRequest``` class with your desired parameters and then invoke `sendAndWait` to execute an upload attempt. ```sendAndWait``` will return a ```PasteeUploadResponse``` instance containing the result of the upload request. An example is displayed below
 
 ```scala
 val response = new PasteeUploadRequest(description = "A simple description.",
@@ -23,7 +23,7 @@ if (response.successful) {
 
 Downloading a Paste
 -------
-Downloading a paste is almost identical to uploading, but a plain String containing the paste is returned instead of some sort result class instance. If there are any problems an ```Exception``` implementation will be thrown. An example is displayed below
+Downloading a paste is almost identical to uploading, but a plain String containing the paste is returned instead. If there are any problems an ```Exception``` implementation will be thrown. An example is displayed below
 
 ```scala
 try {
