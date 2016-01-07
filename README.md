@@ -23,7 +23,7 @@ if (response.successful) {
 
 Downloading a Paste
 -------
-Downloading a paste is almost identical to uploading, but a plain String containing the paste is returned instead of some sort response class instance. If there are any problems an ```Exception``` implementation will be thrown. An example is displayed below
+Downloading a paste is almost identical to uploading, but a plain String containing the paste is returned instead. If there are any problems an ```Exception``` implementation will be thrown. An example is displayed below
 
 ```scala
 try {
