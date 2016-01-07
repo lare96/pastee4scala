@@ -37,7 +37,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
 
     val outputStream = connection.getOutputStream
     try {
-      val requestData = new PasteeUploadRequestData(this)
+      val requestData = new PasteeUploadData(this)
       requestData.putBytes(outputStream)
     } finally {
       outputStream.close()
