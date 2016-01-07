@@ -21,8 +21,6 @@ if (response.successful) {
 }
 ```
 
-<br>
-
 Or alternatively, as a more idiomatic solution you can use pattern matching
 
 ```scala
