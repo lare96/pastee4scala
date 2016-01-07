@@ -9,7 +9,7 @@ import scala.collection.mutable
   * @param request The `PasteeUploadRequest` containing the POST request data.
   * @author lare96 <http://github.org/lare96>
   */
-final class PasteeUploadRequestData(request: PasteeUploadRequest) {
+final class PasteeUploadData(request: PasteeUploadRequest) {
 
   /** A `HashMap` that contains the raw POST request data. */
   private val data = mutable.HashMap[String, String]()
