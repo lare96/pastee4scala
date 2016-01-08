@@ -2,13 +2,9 @@ package org.lare96.pastee
 
 /** An abstraction model that determines if an `PasteeUploadRequest` was successful or not.
   *
-  * @param _successful If the upload request was successful.
   * @author lare96 <http://github.org/lare96>
   */
-sealed abstract class PasteeUploadResponse(_successful: Boolean) {
-
-  /** @return `true` if the upload request was successful, `false` otherwise. */
-  def successful = _successful
+sealed abstract class PasteeUploadResponse(val successful: Boolean) {
 
   /** @return This instance casted to `PasteeSuccessUploadResponse`. Only use if `successful == true`. */
   def toSuccessResponse = this.asInstanceOf[PasteeSuccessUploadResponse]
