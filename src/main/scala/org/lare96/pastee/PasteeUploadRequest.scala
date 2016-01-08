@@ -4,10 +4,10 @@ import java.net.{URL, URLConnection}
 
 import org.lare96.pastee.util.HttpRequestData
 
+import scala.util.Try
 import scala.xml.XML
 
-/** A case class representing an upload request for a Paste.ee paste. After this `PasteeUploadRequest` class is instantiated it
-  * can be manipulated to perform upload operations.
+/** A class representing and holding functionality for submitting paste upload requests to Paste.ee.
   *
   * @param key The API key, `public` for an anonymous key.
   * @param description The description of the paste.
@@ -19,14 +19,14 @@ import scala.xml.XML
   * @param expireViews The amount of views that this paste must acquire in order to expire.
   * @author lare96 <http://github.org/lare96>
   */
-final case class PasteeUploadRequest(key: String = "public", description: String, language: String = "", paste: String,
-                                     encrypted: Boolean = false, useHttps: Boolean = true, expireTime: Int = 0, expireViews: Int = 0) {
+final class PasteeUploadRequest(key: String = "public", description: String, language: String = "", paste: String,
+                                encrypted: Boolean = false, useHttps: Boolean = true, expireTime: Int = 0, expireViews: Int = 0) {
 
-  /** Synchronously execute the code to upload a Paste.ee paste.
+  /** Synchronously attempts to upload a paste to Paste.ee with the specified settings.
     *
-    * @return A `PasteeUploadResponse` object containing the result of the request.
+    * @return A `Try` instance holding the result of this request.
     */
-  def sendAndWait = {
+  def sendAndWait = Try[PasteeUploadResponse] {
     val connection = new URL((if (useHttps) "https" else "http") + "://paste.ee/api").openConnection
 
     connection.setDoOutput(true)
@@ -76,8 +76,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
     }
   }
 
-  /**
-    * Decodes the `XML` response to the `HTTP` request.
+  /** Decodes the `XML` response to the `HTTP` request.
     *
     * @param connection The `URLConnection` to retrieve the `InputStream` from.
     * @return The `PasteeUploadResponse` to the upload request.
@@ -93,7 +92,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
         val errorCode = (xml \ "errorcode").text
         val errorMsg = (xml \ "error").text
 
-        return new PasteeErrorUploadResponse(Integer.parseInt(errorCode), errorMsg)
+        throw new PasteeResponseException(Integer.parseInt(errorCode), errorMsg)
 
       } else if (responseStatus == "success") {
 
@@ -103,8 +102,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
         val download = (xml \ "paste" \ "download").text
         val min = (xml \ "paste" \ "min").text
 
-        return new PasteeSuccessUploadResponse(id, link, raw, download, min)
-
+        return new PasteeUploadResponse(id, link, raw, download, min)
       }
       throw new IllegalStateException(s"invalid response status: $responseStatus")
     } finally {

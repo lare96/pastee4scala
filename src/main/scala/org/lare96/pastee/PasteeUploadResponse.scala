@@ -1,19 +1,6 @@
 package org.lare96.pastee
 
-/** An abstraction model that determines if an `PasteeUploadRequest` was successful or not.
-  *
-  * @author lare96 <http://github.org/lare96>
-  */
-sealed abstract class PasteeUploadResponse(val successful: Boolean) {
-
-  /** @return This instance casted to `PasteeSuccessUploadResponse`. Only use if `successful == true`. */
-  def toSuccessResponse = this.asInstanceOf[PasteeSuccessUploadResponse]
-
-  /** @return This instance casted to `PasteeErrorUploadResponse`. Only use if `successful == false`. */
-  def toErrorResponse = this.asInstanceOf[PasteeErrorUploadResponse]
-}
-
-/** A `PasteeUploadResponse` implementation used for when an upload request was successful.
+/** A case class representing a successful upload response from Paste.ee.
   *
   * @param id The identifier for the paste.
   * @param link The standard link for the paste.
@@ -22,13 +9,4 @@ sealed abstract class PasteeUploadResponse(val successful: Boolean) {
   * @param min The min link for the paste.
   * @author lare96 <http://github.org/lare96>
   */
-final case class PasteeSuccessUploadResponse(id: String, link: String, raw: String, download: String, min: String)
-  extends PasteeUploadResponse(true)
-
-/** A `PasteeUploadResponse` implementation used for when an upload request was unsuccessful.
-  *
-  * @param id The error identification opcode.
-  * @param msg The error message.
-  * @author lare96 <http://github.org/lare96>
-  */
-final case class PasteeErrorUploadResponse(id: Int, msg: String) extends PasteeUploadResponse(false)
+final case class PasteeUploadResponse(id: String, link: String, raw: String, download: String, min: String)

@@ -1,5 +1,6 @@
 package org.lare96.pastee
 
+import org.junit.Assert._
 import org.junit.Test
 
 /** A simple JUnit test that ensures various Paste.ee downloading functions are working correctly.
@@ -8,11 +9,11 @@ import org.junit.Test
   */
 final class PasteeUploadTest {
 
-  @Test(expected = classOf[IllegalStateException])
+  @Test
   def testMultipleExpirationValues(): Unit = {
-    new PasteeUploadRequest(description = "A test upload description.",
+    assertTrue(new PasteeUploadRequest(description = "A test upload description.",
       paste = "Hello, World :)",
       expireTime = 1,
-      expireViews = 1).sendAndWait
+      expireViews = 1).sendAndWait.isFailure)
   }
 }

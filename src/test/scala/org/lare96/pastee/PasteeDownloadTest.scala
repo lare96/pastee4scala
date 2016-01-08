@@ -1,7 +1,6 @@
 package org.lare96.pastee
 
-import java.io.FileNotFoundException
-
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** A simple JUnit test that ensures Paste.ee downloading functions are working correctly.
@@ -10,8 +9,8 @@ import org.junit.Test
   */
 final class PasteeDownloadTest {
 
-  @Test(expected = classOf[FileNotFoundException])
+  @Test
   def testInvalidId(): Unit = {
-    new PasteeDownloadRequest(id = "^#$*#*^*)///^%$$##").sendAndWait
+    assertTrue(new PasteeDownloadRequest(id = "^#$*#*^*)///^%$$##").sendAndWait.isFailure)
   }
 }
