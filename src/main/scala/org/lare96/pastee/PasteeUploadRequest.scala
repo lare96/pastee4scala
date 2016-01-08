@@ -22,18 +22,11 @@ import scala.xml.XML
 final case class PasteeUploadRequest(key: String = "public", description: String, language: String = "", paste: String,
                                      encrypted: Boolean = false, useHttps: Boolean = true, expireTime: Int = 0, expireViews: Int = 0) {
 
-  /** Synchronously execute the code to download a Paste.ee paste.
+  /** Synchronously execute the code to upload a Paste.ee paste.
     *
     * @return A `PasteeUploadResponse` object containing the result of the request.
     */
-  def sendAndWait = send
-
-  /** Open a connection to the Paste.ee API, send a POST request with the data contained within this class, and decode the response
-    * from the `InputStream`.
-    *
-    * @return The `PasteeUploadResponse` to the upload request.
-    */
-  private def send = {
+  def sendAndWait = {
     val connection = new URL((if (useHttps) "https" else "http") + "://paste.ee/api").openConnection
 
     connection.setDoOutput(true)
@@ -41,7 +34,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
 
     encodeHttpRequest(connection)
 
-    decodeXmlResponse(connection)
+    decodeHttpResponse(connection)
   }
 
   /** Encodes the `HTTP` request and writes it to the `OutputStream` from the `URLConnection`.
@@ -55,25 +48,25 @@ final case class PasteeUploadRequest(key: String = "public", description: String
 
     val requestData = new HttpRequestData
 
-    requestData.put("key", key)
-    requestData.put("description", description)
-    requestData.put("paste", paste)
+    requestData("key") = key
+    requestData("description") = description
+    requestData("paste") = paste
 
     if (!language.isEmpty) {
-      requestData.put("language", language)
+      requestData("language") = language
     }
 
     if (encrypted) {
-      requestData.put("encrypted", "1")
+      requestData("encrypted") = "1"
     }
 
     if (expireTime != 0) {
-      requestData.put("expire", expireTime.toString)
+      requestData("expire") = expireTime.toString
     } else if (expireViews != 0) {
-      requestData.put("expire", s"views;$expireViews")
+      requestData("expire") = s"views;$expireViews"
     }
 
-    requestData.put("format", "xml")
+    requestData("format") = "xml"
 
     val outputStream = connection.getOutputStream
     try {
@@ -89,7 +82,7 @@ final case class PasteeUploadRequest(key: String = "public", description: String
     * @param connection The `URLConnection` to retrieve the `InputStream` from.
     * @return The `PasteeUploadResponse` to the upload request.
     */
-  private def decodeXmlResponse(connection: URLConnection): PasteeUploadResponse = {
+  private def decodeHttpResponse(connection: URLConnection): PasteeUploadResponse = {
     val inputStream = connection.getInputStream
     try {
       val xml = XML.load(inputStream)

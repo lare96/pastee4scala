@@ -14,18 +14,11 @@ import scala.io.Source
   */
 final class PasteeDownloadRequest(id: String, useHttps: Boolean = true) {
 
-  /** Synchronously execute the code to download a Paste.ee paste.
+  /** Synchronously download a Paste.ee paste.
     *
     * @return The contents of the Paste.ee paste `id` that was specified.
     */
-  def sendAndWait = send
-
-  /** Open a connection with the link built from the specified `id` value, and read all of the data within its
-    * `InputStream`.
-    *
-    * @return The content within the `InputStream`.
-    */
-  private def send = {
+  def sendAndWait = {
     val inputStream = new URL((if (useHttps) "https" else "http") + s"://paste.ee/r/$id").openConnection.getInputStream
 
     Source.fromInputStream(inputStream).mkString

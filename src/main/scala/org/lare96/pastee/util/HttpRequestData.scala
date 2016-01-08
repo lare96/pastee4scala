@@ -19,7 +19,7 @@ final class HttpRequestData {
     * @param key The key of the parameter.
     * @param value The value of the parameter.
     */
-  def put(key: String, value: String) = parameters(key) = value
+  def update(key: String, value: String) = parameters(key) = value
 
   /** Transforms the data into `POST` request parameter format and writes it as an array of bytes into the specified
     * `OutputStream`.
